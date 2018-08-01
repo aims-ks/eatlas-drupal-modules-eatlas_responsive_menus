@@ -17,5 +17,5 @@ dependencies[] = menu
 ; Attributes used by the update module.
 ; There fields needs to be removed if the module is migrated to Drupal.org
 project status url = "http://drupal.eatlas.org.au/modules/eatlas"
-version = "7.x-1.4"
+version = "7.x-1.5"
 project = "eatlas_responsive_menus"

@@ -53,6 +53,10 @@
 	display: block;
 }
 
+.eatlas-responsive-menu-container ul.accordion-menu > li.expanded > a {
+	cursor: pointer;
+}
+
 /* Close sub-menus - jQuery will open the active trail sub-menu */
 .eatlas-responsive-menu-container ul.accordion-menu > li > ul {
 	display: none;
