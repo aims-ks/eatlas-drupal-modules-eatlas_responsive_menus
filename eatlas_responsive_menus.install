@@ -1,0 +1,12 @@
+<?php
+
+/**
+ * Implements hook_uninstall().
+ *   https://api.drupal.org/api/drupal/modules%21system%21system.api.php/function/hook_uninstall/7
+ */
+function eatlas_responsive_menus_uninstall() {
+	// Delete all persistant variables created by this module
+	eatlas_responsive_menus_delete_settings();
+}
+
+?>

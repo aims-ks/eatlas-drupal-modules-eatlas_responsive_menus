@@ -1,0 +1,59 @@
+/**
+ * Very basic CSS that just make the menu works.
+ * For fancy looking, set it up in your theme CSS.
+ *
+ * To toggle from the normal menu to the responsive menu,
+ * put something like this in your theme CSS file:
+ *     @media screen and (max-width: 960px) {
+ *         .eatlas-responsive-menu ul.menu {
+ *             display: none;
+ *         }
+ *     
+ *         .eatlas-responsive-menu-container {
+ *             display: block;
+ *         }
+ *     }
+ */
+
+/**
+ * Hide the responsive menu - it is shown by the theme when the browser
+ * width goes bellow a given threshold.
+ */
+.eatlas-responsive-menu-container {
+	display: none;
+}
+
+/* Position the menu button */
+.eatlas-responsive-menu-container .eatlas-responsive-menu-button {
+	padding: 5px 0 5px 30px;
+}
+
+/* Definition of the menu button (image and size) */
+.eatlas-responsive-menu-container .eatlas-responsive-menu-button .eatlas-responsive-menu-button-image {
+	cursor: pointer;
+	width: 40px;
+	height: 34px;
+	background: transparent url('../img/menu-button.png') no-repeat;
+}
+
+/**
+ * Margin do not play well with parent container, it do not expand to
+ * include the last child margin. In this case, padding usually works
+ * better.
+ * NOTE: This can be overriden in the theme if needed.
+ */
+.eatlas-responsive-menu-container ul.accordion-menu {
+	margin: 0;
+	padding-bottom: 1em;
+}
+
+/* Display the menu vertically - the theme will deal with the details. */
+.eatlas-responsive-menu-container ul.accordion-menu li,
+.eatlas-responsive-menu-container ul.accordion-menu li a {
+	display: block;
+}
+
+/* Close sub-menus - jQuery will open the active trail sub-menu */
+.eatlas-responsive-menu-container ul.accordion-menu > li > ul {
+	display: none;
+}

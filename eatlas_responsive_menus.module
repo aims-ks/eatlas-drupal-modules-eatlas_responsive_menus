@@ -1,0 +1,150 @@
+<?php
+
+/**
+ * Implements: hook_menu().
+ *
+ * Module configuration
+ *   https://api.drupal.org/api/drupal/modules%21system%21system.api.php/function/hook_menu/7
+ */
+function eatlas_responsive_menus_menu() {
+	$items = array();
+
+	// NOTE: admin/config/eatlas is defined in "eatlas_commons"
+	$items['admin/config/eatlas/eatlas_responsive_menus'] = array(
+		'title' => 'Responsive menus',
+		'description' => 'eAtlas Responsive menus settings',
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('_eatlas_responsive_menus_settings'),
+		'access arguments' => array('access administration pages'),
+		'file' => 'eatlas_responsive_menus.admin.inc'
+	);
+
+	return $items;
+}
+
+
+
+/**
+ * Implements hook_preprocess_HOOK().
+ *   https://api.drupal.org/api/drupal/modules!system!theme.api.php/function/hook_preprocess_HOOK/7
+ * HOOK: block
+ *
+ * Alter the block menu before going to the theme:
+ *   https://api.drupal.org/api/drupal/modules!block!block.module/function/template_preprocess_block/7
+ *
+ * Create a copy of the menus that has been selected in the module
+ *   configuration, and adapt it for responsive design.
+ * Since each theme may define a different page width to toggle
+ *   the menus, it's the responsability of the theme to set the
+ *   appropriate CSS to toggle the menus and alter its look.
+ */
+function eatlas_responsive_menus_preprocess_block(&$variables) {
+	if (isset($variables['block']) &&
+			property_exists($variables['block'], 'module') &&
+			property_exists($variables['block'], 'delta')) {
+
+		$settings = eatlas_responsive_menus_load_settings();
+		$menu_id = $variables['block']->delta;
+
+		// NOTE:
+		//   Selected menu: $settings->menus["<MENU ID>"] => "<MENU ID>"
+		//   Unselected menu: $settings->menus["<MENU ID>"] => 0
+		//   In PHP, 0 or undefined is FALSE, any String is TRUE.
+		if (!empty($settings) &&
+				!empty($menu_id) &&
+				property_exists($settings, 'menus') &&
+				isset($settings->menus[$menu_id]) &&
+				$settings->menus[$menu_id]) {
+
+			$variables['classes_array'][] = drupal_html_class('eatlas-responsive-menu');
+			$button_image_src = base_path() . drupal_get_path('module', 'eatlas_responsive_menus') . '/img/menu-button.png';
+
+			// Make a copy the current menu to create the responsive menu.
+			// NOTE: A copy works better that sharing the same markup;
+			//   jQuery can bind event listeners and play with the CSS without
+			//   impacting the default menu. This is important for devices that
+			//   can change the browser size enough to switch from the responsive
+			//   menu to the normal one. For example, changing the orientation
+			//   of an iPad from paysage to portrait.
+			$responsive_menu = $variables['content'];
+
+			// NOTE: It's much easier to have independant CSS class for
+			//   the accordion menu; we do not need to reset all the main
+			//   menu attributes to make an accordion menu from it.
+			//   It's safe to do basic string replacement here since
+			//   the "ul" is hardcoded in Drupal. It's pretty stable.
+			//     https://api.drupal.org/api/drupal/includes%21menu.inc/function/theme_menu_tree/7
+
+			$responsive_menu_container = eatlas_responsive_menus_preprocess_menu($responsive_menu);
+
+			// Append the markup for responsive menu to the actual menu.
+			// The module CSS take care of hiding it.
+			// It's the responsability of the theme to toggle it
+			// when the screen gets too small.
+			$variables['content'] .= $responsive_menu_container;
+		}
+	}
+}
+
+function eatlas_responsive_menus_preprocess_menu($menu) {
+	if (!$menu) {
+		return $menu;
+	}
+
+	// Change the class of the root menu (first occurence) from '<ul class="menu">' to '<ul class="accordion-menu">'
+	$pos = strpos($menu, '<ul class="menu">');
+	if ($pos !== false) {
+		$menu = substr_replace($menu, '<ul class="accordion-menu">', $pos, strlen('<ul class="menu">'));
+	}
+	// Remove the reminding 'menu' class from all sub-menus
+	$menu = str_replace('<ul class="menu">', '<ul>', $menu);
+
+	// Embed the menu in a container div, with the menu button.
+	return '<div class="' . drupal_html_class('eatlas-responsive-menu-container') . '">' .
+			'<div class="' . drupal_html_class('eatlas-responsive-menu-button') . '">' .
+				'<div class="' . drupal_html_class('eatlas-responsive-menu-button-image') . '" title="' . check_plain(t('Menu')) .'"></div>' .
+			'</div>' .
+			$menu .
+		'</div>';
+}
+
+/**
+ * Save / Load module settings
+ */
+
+function eatlas_responsive_menus_create_empty_settings() {
+	$settings = new stdClass();
+	$settings->menus = NULL;
+
+	return $settings;
+}
+
+function eatlas_responsive_menus_load_settings() {
+	$settings = eatlas_responsive_menus_create_empty_settings();
+
+	foreach ($settings as $key => $value) {
+		$settings->{$key} = variable_get("eatlas_responsive_menus_${key}");
+	}
+
+	return $settings;
+}
+
+function eatlas_responsive_menus_save_settings($settings) {
+	if (!empty($settings)) {
+		foreach ($settings as $key => $value) {
+			variable_set("eatlas_responsive_menus_${key}", $value);
+		}
+	}
+}
+
+// Called when uninstalling the module
+//   https://api.drupal.org/api/drupal/includes%21bootstrap.inc/function/variable_del/7
+function eatlas_responsive_menus_delete_settings() {
+	$settings = eatlas_responsive_menus_create_empty_settings();
+
+	foreach ($settings as $key => $value) {
+		variable_del("eatlas_responsive_menus_${key}");
+	}
+}
+
+?>

@@ -1,0 +1,21 @@
+name = eAtlas - Responsive menus
+description = Collapse listed menus into a button for better usability on small devices.
+core = 7.x
+
+files[] = eatlas_responsive_menus.module
+
+stylesheets[all][] = css/eatlas_responsive_menus.css
+scripts[] = js/eatlas_responsive_menus.js
+
+package = eAtlas
+
+configure = admin/config/eatlas/eatlas_responsive_menus
+
+dependencies[] = eatlas_commons (>=1.4)
+dependencies[] = menu
+
+; Attributes used by the update module.
+; There fields needs to be removed if the module is migrated to Drupal.org
+project status url = "http://drupal.eatlas.org.au/modules/eatlas"
+version = "7.x-1.4"
+project = "eatlas_responsive_menus"
